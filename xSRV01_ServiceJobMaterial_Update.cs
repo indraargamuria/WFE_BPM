@@ -381,7 +381,5 @@ else if (callContextBpmData.Checkbox03 == true)
     PublishInfoMessage(sMsg, Ice.Common.BusinessObjectMessageType.Information, Ice.Bpm.InfoMessageDisplayMode.Individual, "", "");
 
     //Test Add Comment
-    //Test Add Comment just for Git Push Check and Revert Version
-    
 }
 
