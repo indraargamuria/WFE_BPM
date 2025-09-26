@@ -39,6 +39,7 @@ if (callContextBpmData.Checkbox01 == true)
         sJobMtlAddRow.Description = a.JobMtl_Description;
         sJobMtlAddRow.MfgComment = a.JobMtl_MfgComment;
         sJobMtlAddRow.EstMtlUnitCost = a.Calculated_EstCost;
+        sJobMtlAddRow["xCancel_c"] = a.JobMtl_xCancel_c;
         sJobMtlAddRow["xListCode_c"] = a.JobMtl_xListCode_c;
         sJobMtlAddRow["xNoCharge_c"] = a.JobMtl_xNoCharge_c;
         sJobMtlAddRow["xDiscountPercentage_c"] = a.Calculated_Discount;
@@ -176,6 +177,7 @@ if (callContextBpmData.Checkbox01 == true)
                 updRow.Description = a.JobMtl_Description;
                 updRow.MfgComment = a.JobMtl_MfgComment;
                 updRow.EstMtlUnitCost = a.Calculated_EstCost;
+                updRow["xCancel_c"] = a.JobMtl_xCancel_c;
                 updRow["xListCode_c"] = a.JobMtl_xListCode_c;
                 updRow["xNoCharge_c"] = a.JobMtl_xNoCharge_c;
                 updRow["xDiscountPercentage_c"] = a.Calculated_Discount;
