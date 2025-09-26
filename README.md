@@ -9,5 +9,3 @@ This repository contains all the **custom BPM (Business Process Management) code
 Think of this as the *"magic sauce"* 🧙‍♂️ that makes Epicor do exactly what the business needs!
 
 ---
-
-## 📂 Repository Structure
