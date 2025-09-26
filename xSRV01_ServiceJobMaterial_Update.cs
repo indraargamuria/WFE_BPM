@@ -38,6 +38,7 @@ if (callContextBpmData.Checkbox01 == true)
 
         sJobMtlAddRow.Description = a.JobMtl_Description;
         sJobMtlAddRow.MfgComment = a.JobMtl_MfgComment;
+        sJobMtlAddRow.EstMtlUnitCost = a.Calculated_EstCost;
         sJobMtlAddRow["xListCode_c"] = a.JobMtl_xListCode_c;
         sJobMtlAddRow["xNoCharge_c"] = a.JobMtl_xNoCharge_c;
         sJobMtlAddRow["xDiscountPercentage_c"] = a.Calculated_Discount;
@@ -174,6 +175,7 @@ if (callContextBpmData.Checkbox01 == true)
                 updRow.IUM = a.JobMtl_IUM;
                 updRow.Description = a.JobMtl_Description;
                 updRow.MfgComment = a.JobMtl_MfgComment;
+                updRow.EstMtlUnitCost = a.Calculated_EstCost;
                 updRow["xListCode_c"] = a.JobMtl_xListCode_c;
                 updRow["xNoCharge_c"] = a.JobMtl_xNoCharge_c;
                 updRow["xDiscountPercentage_c"] = a.Calculated_Discount;
@@ -190,7 +192,7 @@ if (callContextBpmData.Checkbox01 == true)
 
                 sJobSvc.Update(ref sUpdSet);
                 sUpdSet.JobMtl.Clear();
-                PublishInfoMessage("Update Ref " + iBillable.ToString(), Ice.Common.BusinessObjectMessageType.Information, Ice.Bpm.InfoMessageDisplayMode.Individual, "", "");
+                //PublishInfoMessage("Update Ref " + iBillable.ToString(), Ice.Common.BusinessObjectMessageType.Information, Ice.Bpm.InfoMessageDisplayMode.Individual, "", "");
 
             }
         }
@@ -380,6 +382,5 @@ else if (callContextBpmData.Checkbox03 == true)
     sMsg += sD + sN + $"Total Success: {sSuccess}, Total Failed: {sFailed}";
     PublishInfoMessage(sMsg, Ice.Common.BusinessObjectMessageType.Information, Ice.Bpm.InfoMessageDisplayMode.Individual, "", "");
 
-    //Test Add Comment
 }
 
