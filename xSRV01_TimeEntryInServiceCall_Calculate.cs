@@ -32,8 +32,16 @@ if (!string.IsNullOrEmpty(v.LaborDtl_EmployeeNum) && !string.IsNullOrEmpty(v.Cal
     }
 }
 
-if(v.LaborDtl_ClockOutTime > v.LaborDtl_ClockinTime){
-  v.LaborDtl_LaborHrs = v.LaborDtl_ClockOutTime - v.LaborDtl_ClockinTime;
+if(v.LaborDtl_LaborHrs == (v.LaborDtl_ClockOutTime - v.LaborDtl_ClockinTime)){
+  if(v.LaborDtl_ClockOutTime > v.LaborDtl_ClockinTime){
+    v.LaborDtl_LaborHrs = v.LaborDtl_ClockOutTime - v.LaborDtl_ClockinTime;
+  }
+  else {
+    v.LaborDtl_LaborHrs = 0;
+  }
+}
+else {
+    v.LaborDtl_LaborHrs = v.LaborDtl_LaborHrs;
 }
 v.Calculated_TotalCost = v.LaborDtl_LaborHrs * v.Calculated_Rate;
 v.Calculated_TotalBurdenCost = v.LaborDtl_LaborHrs * v.LaborDtl_BurdenRate;
