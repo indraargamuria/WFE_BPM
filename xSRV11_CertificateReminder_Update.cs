@@ -10,6 +10,7 @@ var distinctCustomers = vToPrintList
     .ToList();
 
 string sMessage = "";
+string sC = callContextClient.CurrentCompany;
 foreach (var custID in distinctCustomers)
 {
     // 3. Retrieve all certificates for the current customer where "ToPrint" is true
@@ -114,7 +115,7 @@ foreach (var custID in distinctCustomers)
         vRptSet.DynamicCriteriaParam[0]["SetCustID"] = custID;
         vRptSet.DynamicCriteriaParam[0].FaxSubject = "Reminder for LM/PM Renewal | " + getName;
         vRptSet.DynamicCriteriaParam[0].EMailTo = getEmail;
-        vRptSet.DynamicCriteriaParam[0].EMailCC = "arga@opexcg.com;kenaka@opexcg.com";
+        /*vRptSet.DynamicCriteriaParam[0].EMailCC ="arga@opexcg.com;kenaka@opexcg.com";*/
         vRptSet.DynamicCriteriaParam[0].EMailBody = "Dear Sir/Madam,\n\n" +
         "Please find attached the reminder letter for the LM/PM renewal of your lifting equipment.\n" +
         "Kindly arrange for the necessary inspection and servicing ahead of the due date to avoid any delay in the renewal process.\n\n" +
@@ -134,6 +135,16 @@ foreach (var custID in distinctCustomers)
             string.Empty,
             string.Empty
         );*/
+        
+        //Loop Equip Plan
+        foreach(var lEP in vToPrintList){
+          var vDbEquipPlan = Db.EquipPlan.FirstOrDefault(r => r.Company==sC && r.SysRowID== lEP.EquipPlan_SysRowID);
+          
+          lEP.EquipPlan_xLastRemindDate_c = DateTime.Now;
+          vDbEquipPlan.xLastRemindDate_c = DateTime.Now;
+          
+          Db.Validate();
+        }
       }
     }
     catch(Exception e){
