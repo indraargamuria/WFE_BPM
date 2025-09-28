@@ -304,18 +304,9 @@ else if (callContextBpmData.Checkbox03 == true)
 
     // Group logic to avoid duplicate per part, and choose best row
     var groupedIssues = queryResultDataset.Results
-        .Where(r => r.Calculated_CurrentIssue != 0 && r.Calculated_Select == true)
+        .Where(r => r.JobMtl_MtlSeq != 0 && r.JobMtl_PartNum != "" && r.Calculated_CurrentIssue != 0 && r.Calculated_Select == true)
         .GroupBy(r => r.JobMtl_MtlSeq)
-        .Select(g =>
-        {
-            // Prefer 'U' rowmod
-            var updateRow = g.FirstOrDefault(r => r.RowMod == "U");
-            if (updateRow != null)
-                return updateRow;
-
-            // Otherwise, fallback to "" (new record)
-            return g.FirstOrDefault(r => string.IsNullOrEmpty(r.RowMod));
-        })
+        .Select(g => g.FirstOrDefault())
         .Where(r => r != null)
         .OrderBy(r => r.JobMtl_MtlSeq)
         .ToList();
