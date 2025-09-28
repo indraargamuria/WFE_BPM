@@ -11,8 +11,10 @@ var v = vQuery;
   int iAsmSeq = 0;
   int iOprSeq = 10;
   DateTime iClockDate = Convert.ToDateTime(v.LaborDtl_ClockInDate);
-  decimal dClockIn = Convert.ToDecimal(v.LaborDtl_ClockinTime);
-  decimal dClockOut = Convert.ToDecimal(v.LaborDtl_ClockOutTime);
+  //decimal dClockIn = Convert.ToDecimal(v.LaborDtl_ClockinTime);
+  //decimal dClockOut = Convert.ToDecimal(v.LaborDtl_ClockOutTime);
+  decimal dClockIn = Convert.ToDecimal(8);
+  decimal dClockOut = Convert.ToDecimal(17);
   string sRateType = v.Calculated_RateType;
 
   var rate = (from emp in Db.EmpBasic
@@ -26,10 +28,11 @@ var v = vQuery;
                   RateDT = u.Number05
               }).FirstOrDefault();
 
+  /*
   if(v.LaborDtl_ClockOutTime > v.LaborDtl_ClockinTime){
     v.LaborDtl_LaborHrs = v.LaborDtl_ClockOutTime - v.LaborDtl_ClockinTime;
   }
-
+  */
   if (rate != null)
   {
       if (v.Calculated_RateType == "R")
