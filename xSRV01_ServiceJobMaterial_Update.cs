@@ -43,6 +43,7 @@ if (callContextBpmData.Checkbox01 == true)
         sJobMtlAddRow["xListCode_c"] = a.JobMtl_xListCode_c;
         sJobMtlAddRow["xNoCharge_c"] = a.JobMtl_xNoCharge_c;
         sJobMtlAddRow["xDiscountPercentage_c"] = a.Calculated_Discount;
+        sJobMtlAddRow["xGrossPrice_c"] = a.Calculated_GrossPricing;
         sJobMtlAddRow.dspBuyIt = a.JobMtl_BuyIt;
         sJobMtlAddRow.BuyIt = a.JobMtl_BuyIt;
         //sJobSvc.ChangeJobMtlBuyIt(ref sAddSet);
@@ -181,6 +182,7 @@ if (callContextBpmData.Checkbox01 == true)
                 updRow["xListCode_c"] = a.JobMtl_xListCode_c;
                 updRow["xNoCharge_c"] = a.JobMtl_xNoCharge_c;
                 updRow["xDiscountPercentage_c"] = a.Calculated_Discount;
+                updRow["xGrossPrice_c"] = a.Calculated_GrossPricing;
                 updRow.Billable = iBillable;
                 baseRow.dspBuyIt = a.JobMtl_BuyIt;
                 updRow.dspBuyIt = a.JobMtl_BuyIt;
@@ -301,15 +303,13 @@ else if (callContextBpmData.Checkbox03 == true)
 
     Erp.Tablesets.IssueReturnTableset IssueSet = new Erp.Tablesets.IssueReturnTableset();
     Erp.Contracts.IssueReturnSvcContract IssueSvc = Ice.Assemblies.ServiceRenderer.GetService<Erp.Contracts.IssueReturnSvcContract>(Db);
-
-    // Group logic to avoid duplicate per part, and choose best row
+    Erp.Tablesets.SelectedJobAsmblTableset JobAsmblSet = new Erp.Tablesets.SelectedJobAsmblTableset();
     var groupedIssues = queryResultDataset.Results
-        .Where(r => r.JobMtl_MtlSeq != 0 && r.JobMtl_PartNum != "" && r.Calculated_CurrentIssue != 0 && r.Calculated_Select == true)
+        .Where(r => r.JobMtl_MtlSeq != 0 && r.JobMtl_PartNum != "" && r.Calculated_CurrentIssue != 0
+        && r.Calculated_Select == true)
         .GroupBy(r => r.JobMtl_MtlSeq)
-        .Select(g => g.FirstOrDefault())
-        .Where(r => r != null)
-        .OrderBy(r => r.JobMtl_MtlSeq)
-        .ToList();
+        .Select(g => g.FirstOrDefault());
+
 
     foreach (var d in groupedIssues)
     {
@@ -319,61 +319,43 @@ else if (callContextBpmData.Checkbox03 == true)
         string iBinNum = d.Calculated_BinIssue;
         string iLotNum = d.Calculated_LotIssue;
         decimal iCurrentIssue = d.Calculated_CurrentIssue;
+        string iOutString = "";
+        string iUOM = d.JobMtl_IUM;
 
         try
         {
-            // New IssueReturn row
+          var vDbJobHead = Db.JobHead.FirstOrDefault(r=>r.Company==sCompany&&r.JobNum==sJobNum);
+          var vJ = vDbJobHead;
+          if(vDbJobHead != null){
             IssueSvc.GetNewIssueReturnToJob(sJobNum, 0, "STK-MTL", Guid.NewGuid(), out sOutMsg, ref IssueSet);
-            var irRow = IssueSet.IssueReturn[0];
-
-            // Populate fields
-            irRow.Company = sCompany;
-            irRow.PartNum = iPartNum;
-            irRow.FromJobNum = sJobNum;
-            irRow.FromAssemblySeq = 0;
-            irRow.FromJobSeq = iMtlSeq;
-            irRow.ToJobNum = sJobNum;
-            irRow.ToAssemblySeq = 0;
-            irRow.ToJobSeq = iMtlSeq;
-            irRow.ToWarehouseCode = iWarehouseCode;
-            irRow.LotNum = iLotNum;
-            irRow.RowMod = "U";
-            irRow.FromWarehouseCode = iWarehouseCode;
-            irRow.FromBinNum = iBinNum;
-            //irRow.ToBinNum = iBinNum;
-
-            // Triggers & validation
-            IssueSvc.OnChangingToJobSeq(iMtlSeq, ref IssueSet);
-            IssueSvc.OnChangeToJobSeq(ref IssueSet, "IssueMaterial", out sOutMsg);
-            IssueSvc.OnChangeTranQty(iCurrentIssue, ref IssueSet);
-
-            IssueSvc.OnChangeFromWarehouse(ref IssueSet, iWarehouseCode);
-            irRow.FromWarehouseCode = iWarehouseCode;
-            IssueSvc.OnChangeFromBinNum(ref IssueSet);
-            irRow.FromBinNum = iBinNum;
-            IssueSvc.PrePerformMaterialMovement(ref IssueSet, out sOutFlag);
-
-            // Perform Issue
-            string msg1, msg2;
-            irRow.FromBinNum = iBinNum;
-            IssueSvc.PerformMaterialMovement(false, ref IssueSet, out msg1, out msg2);
-
-            // Log success
-            sMsg += $"Material Seq {iMtlSeq} Part {iPartNum} Successfully Issued from Warehouse {iWarehouseCode} Bin {iBinNum} by {iCurrentIssue}{sN}";
-            sSuccess++;
-
-            // Cleanup
-            IssueSet.IssueReturn.Clear();
+            var vModIssue = IssueSet.IssueReturn[0];
+            vModIssue.ToJobNum = sJobNum;
+            vModIssue.ToJobSeq = iMtlSeq;
+            
+            vModIssue.PartNum = iPartNum;
+            
+            vModIssue.DimCode = iUOM;
+            vModIssue.OnHandUM = iUOM;
+            vModIssue.PartIUM = iUOM;
+            vModIssue.PartSalesUM = iUOM;
+            vModIssue.RequirementUOM = iUOM;
+            vModIssue.UM = iUOM;
+            
+            vModIssue.FromWarehouseCode = iWarehouseCode;
+            vModIssue.FromBinNum = iBinNum;
+            vModIssue.ToWarehouseCode = iWarehouseCode;
+            vModIssue.ToBinNum = iBinNum;
+            
+            vModIssue.TranQty = iCurrentIssue;
+            vModIssue.RowMod = "U";
+            IssueSvc.PerformMaterialMovement(false, ref IssueSet, out iOutString, out iOutString);
+          }
+           
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            sMsg += $"Material Seq {iMtlSeq} Failed to Issue - Reason: {ex.Message}{sN}";
-            sFailed++;
+          PublishInfoMessage("Mass Issue Failed for Seq " + iMtlSeq.ToString() + ", Reason: " + e.Message, Ice.Common.BusinessObjectMessageType.Error, Ice.Bpm.InfoMessageDisplayMode.Individual, "", "");
         }
     }
-
-    sMsg += sD + sN + $"Total Success: {sSuccess}, Total Failed: {sFailed}";
-    PublishInfoMessage(sMsg, Ice.Common.BusinessObjectMessageType.Information, Ice.Bpm.InfoMessageDisplayMode.Individual, "", "");
-
-}
+    }
 
