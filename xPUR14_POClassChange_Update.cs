@@ -61,18 +61,24 @@ GLCPOSet.PORelTGLC.Clear();
 // 2. Add new row
 GLCPOSet.PORelTGLC.Add(GLCPOSet.PORelTGLC.NewRow());
 
-GLCPOSet.PORelTGLC[0].Company = "WFEP1";
+string sC = callContextClient.CurrentCompany;
+
+var vDbGLBook = Db.GLBook.FirstOrDefault(r=>r.Company==sC);
+var vDbCOA = Db.COA.FirstOrDefault(r=>r.Company==sC);
+var vDbFiscalCal = Db.FiscalCal.FirstOrDefault(r=>r.Company==sC);
+
+GLCPOSet.PORelTGLC[0].Company = sC;
 GLCPOSet.PORelTGLC[0].RelatedToFile = "PORel";
 GLCPOSet.PORelTGLC[0].Key1 = vQuery.PODetail_PONUM.ToString();
 GLCPOSet.PORelTGLC[0].Key2 = vQuery.PODetail_POLine.ToString();
 GLCPOSet.PORelTGLC[0].Key3 = "1";
 
 GLCPOSet.PORelTGLC[0].GLAcctContext = "Expense";
-GLCPOSet.PORelTGLC[0].BookID = "WFE";
-GLCPOSet.PORelTGLC[0].COACode = "WFE";
+GLCPOSet.PORelTGLC[0].BookID = vDbGLBook.BookID;
+GLCPOSet.PORelTGLC[0].COACode = vDbCOA.COACode;
 GLCPOSet.PORelTGLC[0].SysGLControlType = "PO Release";
 GLCPOSet.PORelTGLC[0].SysGLControlCode = "142547982";
-GLCPOSet.PORelTGLC[0].FiscalCalendarID = "WFE-CAL";
+GLCPOSet.PORelTGLC[0].FiscalCalendarID = vDbFiscalCal.FiscalCalendarID;
 GLCPOSet.PORelTGLC[0].CreateDate = DateTime.Today;
 GLCPOSet.PORelTGLC[0].TranDate = DateTime.Today;
 GLCPOSet.PORelTGLC[0].IsMainBook = true;
@@ -95,37 +101,3 @@ POSvc.Update(ref GLCPOSet);
 catch(Exception e){
   PublishInfoMessage(e.Message, Ice.Common.BusinessObjectMessageType.Information, Ice.Bpm.InfoMessageDisplayMode.Individual, "", "");
 }
-/*
-try {
-var vDbTranGLCPORel = Db.TranGLC.FirstOrDefault(r=>r.RelatedToFile=="PORel"&&r.Key1==vQuery.PODetail_PONUM.ToString()&&r.Key2==vQuery.PODetail_POLine.ToString());
-if(vDbTranGLCPORel != null){
-  vDbTranGLCPORel.GLAccount = glInfo.GLAccount1;
-  vDbTranGLCPORel.SegValue1 = glInfo.SegValue1;
-  vDbTranGLCPORel.SegValue2 = glInfo.SegValue2;
-  vDbTranGLCPORel.SegValue3 = glInfo.SegValue3;
-}
-}
-catch(Exception e){
-  PublishInfoMessage(e.Message, Ice.Common.BusinessObjectMessageType.Information, Ice.Bpm.InfoMessageDisplayMode.Individual, "", "");
-}
-Db.Validate();
-
-/*
-
-// Optional: Check dulu kalau ga ketemu
-if (string.IsNullOrEmpty(glAccount))
-    throw new Ice.Common.BusinessObjectException("GL Account not found for PartClass: " + classID);
-
-// 3. Update TranGLC (RelatedToFile = PORel)
-var tranGLCList = (from tg in Db.TranGLC
-                   where tg.Company == company
-                     && tg.RelatedToFile == "PORel"
-                     && tg.Key1 == vQuery.PODetail_PONUM.ToString()
-                     && tg.Key2 == vQuery.PODetail_POLine.ToString()
-                   select tg).ToList();
-
-foreach (var tg in tranGLCList)
-{
-    tg.GLAccount = glAccount;
-}
-*/
